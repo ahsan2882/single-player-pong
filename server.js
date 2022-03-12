@@ -9,7 +9,7 @@ const io = require('socket.io')(server, {
 const PORT = 3000;
 
 io.on('connection', (socket) => {
-    console.log('a user connected')
+    console.log('a user connected with id: ', socket.id)
 })
 
 server.listen(PORT);
