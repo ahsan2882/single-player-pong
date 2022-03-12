@@ -1,7 +1,9 @@
 const api = require('./api');
+const http = require('http');
+const socketIO = require('socket.io')
 
-const server = require('http').createServer(api);
-const io = require('socket.io')(server, {
+const server = http.createServer(api);
+const io = socketIO(server, {
     cors: {
         origin: '*',
         methods: ['GET', 'POST']
