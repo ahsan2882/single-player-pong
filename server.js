@@ -8,9 +8,21 @@ const io = require('socket.io')(server, {
 
 const PORT = 3000;
 
-io.on('connection', (socket) => {
-    console.log('a user connected with id: ', socket.id)
-})
-
 server.listen(PORT);
-console.log(`Server listening on ${PORT}`);
+console.log(`Listening on port ${PORT}...`);
+
+let readyPlayerCount = 0;
+
+io.on('connection', (socket) => {
+    console.log('a user connected', socket.id);
+
+    socket.on('ready', () => {
+        console.log('Player ready', socket.id);
+
+        readyPlayerCount++;
+
+        if (readyPlayerCount === 2) {
+            io.emit('startGame', socket.id);
+        }
+    });
+});

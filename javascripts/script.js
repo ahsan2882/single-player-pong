@@ -1,7 +1,8 @@
 // Canvas Related 
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
-const socket = io('http://localhost:3000')
+const socket = io('http://localhost:3000');
+let isReferee = false;
 let paddleIndex = 0;
 
 let width = 500;
@@ -11,8 +12,8 @@ let height = 700;
 let paddleHeight = 10;
 let paddleWidth = 50;
 let paddleDiff = 25;
-let paddleX = [ 225, 225 ];
-let trajectoryX = [ 0, 0 ];
+let paddleX = [225, 225];
+let trajectoryX = [0, 0];
 let playerMoved = false;
 
 // Ball
@@ -26,7 +27,7 @@ let speedY = 2;
 let speedX = 0;
 
 // Score for Both Players
-let score = [ 0, 0 ];
+let score = [0, 0];
 
 // Create Canvas Element
 function createCanvas() {
@@ -145,14 +146,12 @@ function ballBoundaries() {
       ballDirection = -ballDirection;
       trajectoryX[1] = ballX - (paddleX[1] + paddleDiff);
       speedX = trajectoryX[1] * 0.3;
-    } else {      
+    } else {
       ballReset();
       score[0]++;
     }
   }
 }
-
-
 
 // Called Every Frame
 function animate() {
@@ -162,13 +161,15 @@ function animate() {
   window.requestAnimationFrame(animate);
 }
 
-// Start Game, Reset Everything
-function startGame() {
+// Load Game, Reset Everything
+function loadGame() {
   createCanvas();
   renderIntro();
   socket.emit('ready');
-  
-  paddleIndex = 0;
+}
+
+function startGame() {
+  paddleIndex = isReferee ? 0 : 1;
   window.requestAnimationFrame(animate);
   canvas.addEventListener('mousemove', (e) => {
     playerMoved = true;
@@ -185,8 +186,15 @@ function startGame() {
 }
 
 // On Load
-startGame();
+loadGame();
 
 socket.on('connect', () => {
-  console.log('connected as...', socket.id);
+  console.log('Connected as...', socket.id);
+})
+
+socket.on('startGame', (refereeId) => {
+  console.log('Referee is', refereeId);
+
+  isReferee = socket.id === refereeId;
+  startGame();
 })
